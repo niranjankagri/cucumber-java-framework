@@ -22,6 +22,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.automation.ui.config.Config;
+
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.EmbedEvent;
 import io.cucumber.plugin.event.EventPublisher;
@@ -385,20 +387,15 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		return path.substring(path.lastIndexOf('/') + 1);
 	}
 
-	// Browser from the framework settings, if they can be read
+	// Browser from the framework settings, or "–" if they cannot be read
 	private String browser() {
-		String browser = System.getProperty("browser");
 		try {
-			Class<?> config = Class.forName("com.automation.ui.config.Config");
-			Object instance = config.getMethod("get").invoke(null);
-			browser = (String) config.getMethod("browser").invoke(instance);
-			if ((Boolean) config.getMethod("headless").invoke(instance)) {
-				browser += " (headless)";
-			}
-		} catch (ReflectiveOperationException | RuntimeException | ExceptionInInitializerError e) {
-			// Settings not available: show the -D value, if any
+			Config config = Config.get();
+			return config.browser() + (config.headless() ? " (headless)" : "");
+		} catch (RuntimeException | LinkageError e) {
+			// config.properties missing or incomplete: the report is still written
+			return "–";
 		}
-		return browser == null ? "–" : browser;
 	}
 
 	// One label/value box in the scenario details

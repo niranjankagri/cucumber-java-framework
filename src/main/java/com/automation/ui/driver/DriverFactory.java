@@ -31,13 +31,15 @@ public final class DriverFactory {
 	}
 
 	/**
-	 * Starts a new browser for the current thread.
+	 * Starts a new browser for the current thread, closing any browser this
+	 * thread still had open so it is not leaked.
 	 *
 	 * @param browser     chrome, firefox or edge (case-insensitive).
 	 * @param headless    true to run without a visible window.
 	 * @return WebDriver  the started driver.
 	 */
 	public static WebDriver start(String browser, boolean headless) {
+		quit();
 		WebDriver driver = switch (browser.toLowerCase(Locale.ROOT)) {
 		case "chrome" -> new ChromeDriver(chromeOptions(headless));
 		case "firefox" -> new FirefoxDriver(firefoxOptions(headless));

@@ -114,23 +114,24 @@ public class SystemUsersPage extends AppPage {
 		return column(STATUS_COLUMN);
 	}
 
-	// Text of one column for every row of the table
+	// Text of one column for every row of the table. The table can re-render
+	// while it is read; the wait ignores stale rows, so such a read is retried.
 	private List<String> column(int index) {
-		return findAll(rows).stream()
-				.map(row -> row.findElements(cells))
-				.map(rowCells -> rowCells.get(index))
-				.map(WebElement::getText)
-				.map(String::trim)
-				.toList();
+		return wait.until(d -> findAll(rows).stream()
+						.map(row -> row.findElements(cells))
+						.map(rowCells -> rowCells.get(index))
+						.map(WebElement::getText)
+						.map(String::trim)
+						.toList());
 	}
 
 	// Text input of the filter form with the given label
 	private By filterInput(String label) {
-		return By.xpath("//label[normalize-space()='" + label + "']/ancestor::div[contains(@class,'oxd-input-group')]//input");
+		return inField(label, "//input");
 	}
 
 	// Dropdown of the filter form with the given label
 	private By filterSelect(String label) {
-		return By.xpath("//label[normalize-space()='" + label + "']/ancestor::div[contains(@class,'oxd-input-group')]//div[contains(@class,'oxd-select-text-input')]");
+		return inField(label, "//div[contains(@class,'oxd-select-text-input')]");
 	}
 }

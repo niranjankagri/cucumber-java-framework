@@ -1,8 +1,10 @@
 package com.automation.ui.pages;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,6 +21,8 @@ public abstract class BasePage {
 
 	// OrangeHRM shows this spinner while a form or table is loading
 	private static final By LOADER = By.cssSelector(".oxd-loading-spinner");
+	// How long to wait for the spinner to appear; fast responses may never show it
+	private static final Duration LOADER_APPEAR_TIMEOUT = Duration.ofSeconds(2);
 
 	// The browser this page works on
 	protected final WebDriver driver;
@@ -31,6 +35,9 @@ public abstract class BasePage {
 	protected BasePage(WebDriver driver) {
 		this.driver = driver;
 		this.wait = new WebDriverWait(driver, Config.get().timeout());
+		// OrangeHRM re-renders parts of the page after loads; an element replaced
+		// mid-wait is looked up again on the next poll instead of failing the step
+		this.wait.ignoring(StaleElementReferenceException.class);
 	}
 
 	/**
@@ -94,10 +101,28 @@ public abstract class BasePage {
 	}
 
 	/**
-	 * Waits until the OrangeHRM loading spinner is gone.
+	 * Waits for a load started by the previous action to finish: first gives
+	 * the spinner a moment to appear (so the wait cannot pass before loading
+	 * has even started), then waits until it is gone.
 	 */
 	protected void waitForLoader() {
+		try {
+			new WebDriverWait(driver, LOADER_APPEAR_TIMEOUT).until(ExpectedConditions.presenceOfElementLocated(LOADER));
+		} catch (TimeoutException e) {
+			// The response came back before the spinner was shown
+		}
 		wait.until(ExpectedConditions.invisibilityOfElementLocated(LOADER));
+	}
+
+	/**
+	 * Locates an element inside the OrangeHRM form field with the given label.
+	 *
+	 * @param label     the visible field label, e.g. "Username".
+	 * @param inner     XPath of the element within the field, e.g. "//input".
+	 * @return By       locator of that element.
+	 */
+	protected By inField(String label, String inner) {
+		return By.xpath("//label[normalize-space()='" + label + "']/ancestor::div[contains(@class,'oxd-input-group')]" + inner);
 	}
 
 	/**

@@ -67,7 +67,6 @@ public class LoginPage extends BasePage {
 	 * @return String  the validation message under that field, e.g. "Required".
 	 */
 	public String fieldMessage(String label) {
-		return textOf(By.xpath("//label[normalize-space()='" + label + "']/ancestor::div[contains(@class,'oxd-input-group')]"
-				+ "//span[contains(@class,'oxd-input-field-error-message')]"));
+		return textOf(inField(label, "//span[contains(@class,'oxd-input-field-error-message')]"));
 	}
 }
