@@ -39,8 +39,8 @@ public class AdminSteps {
 	 *
 	 * @param item the menu label, e.g. "Admin".
 	 */
-	@When("the user opens the {string} menu")
-	public void theUserOpensTheMenu(String item) {
+	@When("the admin opens the {string} menu")
+	public void theAdminOpensTheMenu(String item) {
 		context.dashboardPage().openMenu(item);
 	}
 
@@ -58,7 +58,7 @@ public class AdminSteps {
 	 */
 	@Given("the admin is on the System Users page")
 	public void theAdminIsOnTheSystemUsersPage() {
-		theUserOpensTheMenu("Admin");
+		theAdminOpensTheMenu("Admin");
 		theSystemUsersPageIsDisplayed();
 	}
 
@@ -85,16 +85,16 @@ public class AdminSteps {
 	/**
 	 * Runs the search and waits for the table to reload.
 	 */
-	@When("the admin clicks Search")
-	public void theAdminClicksSearch() {
+	@When("the admin runs the search")
+	public void theAdminRunsTheSearch() {
 		page().search();
 	}
 
 	/**
 	 * Resets the filters and waits for the table to reload.
 	 */
-	@When("the admin clicks Reset")
-	public void theAdminClicksReset() {
+	@When("the admin resets the filters")
+	public void theAdminResetsTheFilters() {
 		page().reset();
 	}
 
@@ -105,8 +105,8 @@ public class AdminSteps {
 	 * @param username  the expected username in every row.
 	 * @param status    the expected status in every row.
 	 */
-	@Then("every result has username {string} and status {string}")
-	public void everyResultHas(String username, String status) {
+	@Then("only users named {string} with status {string} are listed")
+	public void onlyMatchingUsersAreListed(String username, String status) {
 		List<String> usernames = page().usernames();
 		assertFalse(usernames.isEmpty(), "No users found, counter shows: " + page().recordCount());
 		usernames.forEach(name -> assertTrue(name.equalsIgnoreCase(username), "Unexpected username in results: " + name));
@@ -116,8 +116,8 @@ public class AdminSteps {
 	/**
 	 * Checks both filters are back to their empty state after Reset.
 	 */
-	@Then("the filters are cleared")
-	public void theFiltersAreCleared() {
+	@Then("the username and status filters are empty")
+	public void theFiltersAreEmpty() {
 		assertEquals("", page().usernameFilter(), "Username filter after reset");
 		assertEquals("-- Select --", page().statusFilter(), "Status filter after reset");
 	}

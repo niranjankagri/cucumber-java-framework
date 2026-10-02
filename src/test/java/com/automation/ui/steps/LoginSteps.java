@@ -58,14 +58,33 @@ public class LoginSteps {
 	}
 
 	/**
+	 * Submits the form with a username and an empty password field.
+	 *
+	 * @param username the username to type.
+	 */
+	@When("the user logs in with username {string} and no password")
+	public void theUserLogsInWithoutPassword(String username) {
+		context.loginPage().login(username, "");
+	}
+
+	/**
+	 * Setup step for scenarios that need a logged-in user while already on
+	 * the login page: logs in and checks the dashboard is shown.
+	 */
+	@Given("the user has logged in with valid credentials")
+	public void theUserHasLoggedIn() {
+		theUserLogsInWithValidCredentials();
+		theDashboardIsDisplayed();
+	}
+
+	/**
 	 * Shortcut for scenarios that start after login: opens the login page,
 	 * logs in with valid credentials and checks the dashboard is shown.
 	 */
 	@Given("the admin is logged in")
 	public void theAdminIsLoggedIn() {
 		theUserIsOnTheLoginPage();
-		theUserLogsInWithValidCredentials();
-		theDashboardIsDisplayed();
+		theUserHasLoggedIn();
 	}
 
 	/**
@@ -88,13 +107,14 @@ public class LoginSteps {
 	}
 
 	/**
-	 * Checks the validation message under an empty field.
+	 * Checks the validation message under a field of the login form.
 	 *
-	 * @param message the expected text, e.g. "Required".
+	 * @param field    the field label, "Username" or "Password".
+	 * @param message  the expected text, e.g. "Required".
 	 */
-	@Then("the field message {string} is shown")
-	public void theFieldMessageIsShown(String message) {
-		assertEquals(message, context.loginPage().fieldMessage(), "Login field message");
+	@Then("the {string} field shows {string}")
+	public void theFieldShows(String field, String message) {
+		assertEquals(message, context.loginPage().fieldMessage(field), field + " field message");
 	}
 
 	/**

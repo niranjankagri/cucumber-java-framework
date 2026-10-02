@@ -69,8 +69,8 @@ The framework has three layers:
 | Scenario | Checks |
 |----------|--------|
 | Successful login with valid credentials | Dashboard URL and title |
-| Login is rejected with a wrong password / an unknown user | "Invalid credentials" banner (Scenario Outline) |
-| Login requires a password | "Required" field message |
+| Login is rejected when the password is wrong / the user is unknown | "Invalid credentials" banner (Scenario Outline) |
+| Login is not submitted without a password | "Required" under the Password field |
 | Successful logout | Back on the login page |
 
 **Admin user management** (`admin.feature`)

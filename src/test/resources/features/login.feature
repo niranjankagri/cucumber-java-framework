@@ -16,22 +16,22 @@ Feature: Login
     When the user logs in with valid credentials
     Then the dashboard is displayed
 
-  # One scenario per Examples row; <case> is replaced in the scenario name
-  Scenario Outline: Login is rejected with <case>
+  # One scenario per Examples row; <reason> is replaced in the scenario name
+  Scenario Outline: Login is rejected when <reason>
     When the user logs in with username "<username>" and password "<password>"
     Then the error message "Invalid credentials" is shown
 
     Examples:
-      | case             | username | password  |
-      | a wrong password | Admin    | wrong123  |
-      | an unknown user  | nobody42 | admin123  |
+      | reason                | username | password |
+      | the password is wrong | Admin    | wrong123 |
+      | the user is unknown   | nobody42 | admin123 |
 
-  Scenario: Login requires a password
-    When the user logs in with username "Admin" and password ""
-    Then the field message "Required" is shown
+  Scenario: Login is not submitted without a password
+    When the user logs in with username "Admin" and no password
+    Then the "Password" field shows "Required"
 
   @smoke
   Scenario: Successful logout
-    When the user logs in with valid credentials
-    And the user logs out
+    Given the user has logged in with valid credentials
+    When the user logs out
     Then the login page is displayed

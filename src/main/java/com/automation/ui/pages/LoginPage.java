@@ -17,8 +17,6 @@ public class LoginPage extends BasePage {
 	private final By loginButton = By.cssSelector("button[type='submit']");
 	// "Invalid credentials" banner shown above the form
 	private final By errorAlert = By.cssSelector(".oxd-alert-content-text");
-	// "Required" message shown under an empty field
-	private final By requiredMessage = By.cssSelector(".oxd-input-field-error-message");
 
 	/**
 	 * @param driver the browser this page works on.
@@ -65,9 +63,11 @@ public class LoginPage extends BasePage {
 	}
 
 	/**
-	 * @return String the validation message under the first empty field, e.g. "Required".
+	 * @param label    the field label, "Username" or "Password".
+	 * @return String  the validation message under that field, e.g. "Required".
 	 */
-	public String fieldMessage() {
-		return textOf(requiredMessage);
+	public String fieldMessage(String label) {
+		return textOf(By.xpath("//label[normalize-space()='" + label + "']/ancestor::div[contains(@class,'oxd-input-group')]"
+				+ "//span[contains(@class,'oxd-input-field-error-message')]"));
 	}
 }
