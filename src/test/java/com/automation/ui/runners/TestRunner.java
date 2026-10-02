@@ -15,6 +15,7 @@ import io.cucumber.testng.CucumberOptions;
 		plugin = {
 				"pretty",
 				"summary",
+				"com.automation.ui.report.HtmlReportPlugin",
 				"html:target/cucumber-reports/cucumber.html",
 				"json:target/cucumber-reports/cucumber.json",
 				"junit:target/cucumber-reports/cucumber.xml"
