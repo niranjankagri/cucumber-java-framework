@@ -23,8 +23,10 @@ public final class DriverFactory {
 	private static final String WIDTH = "1920";
 	private static final String HEIGHT = "1080";
 
+	// The browser of each thread
 	private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
 
+	// Static helper only
 	private DriverFactory() {
 	}
 
@@ -75,6 +77,7 @@ public final class DriverFactory {
 		}
 	}
 
+	// Chrome: fixed window size, no search-engine choice dialog, CI-friendly flags when headless
 	private static ChromeOptions chromeOptions(boolean headless) {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("--window-size=" + WIDTH + "," + HEIGHT, "--disable-search-engine-choice-screen");
@@ -84,6 +87,7 @@ public final class DriverFactory {
 		return options;
 	}
 
+	// Firefox: fixed window size, optional headless
 	private static FirefoxOptions firefoxOptions(boolean headless) {
 		FirefoxOptions options = new FirefoxOptions();
 		options.addArguments("--width=" + WIDTH, "--height=" + HEIGHT);
@@ -93,6 +97,7 @@ public final class DriverFactory {
 		return options;
 	}
 
+	// Edge: fixed window size, optional headless
 	private static EdgeOptions edgeOptions(boolean headless) {
 		EdgeOptions options = new EdgeOptions();
 		options.addArguments("--window-size=" + WIDTH + "," + HEIGHT);

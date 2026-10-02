@@ -58,8 +58,10 @@ import io.cucumber.plugin.event.WriteEvent;
  */
 public class HtmlReportPlugin implements ConcurrentEventListener {
 
+	// Report file used when no path is given as plugin argument
 	public static final String DEFAULT_REPORT = "target/cucumber-reports/ui-test-report.html";
 
+	// Date formats used in the header and the scenario details
 	private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
 	private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm:ss")
@@ -73,12 +75,14 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 	// Circumference of the pass-rate ring (SVG circle with radius 52)
 	private static final double RING_CIRCUMFERENCE = 2 * Math.PI * 52;
 
+	// Where the report is written
 	private final Path reportPath;
 
 	// Feature name per feature file, from the sources Cucumber read
 	private final Map<URI, String> featureNames = new LinkedHashMap<>();
 	// Scenarios in the order they started
 	private final Map<UUID, ScenarioRun> scenarios = new LinkedHashMap<>();
+	// Start and end of the whole run
 	private Instant runStarted = Instant.now();
 	private Instant runFinished;
 
@@ -92,6 +96,11 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		this.reportPath = reportFile.toPath();
 	}
 
+	/**
+	 * Called by Cucumber once; subscribes to the events the report is built from.
+	 *
+	 * @param publisher Cucumber's event bus.
+	 */
 	@Override
 	public void setEventPublisher(EventPublisher publisher) {
 		publisher.registerHandlerFor(TestRunStarted.class, e -> runStarted = e.getInstant());
@@ -106,15 +115,18 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 
 	// ---------- Event handlers (synchronized: scenarios may run in parallel) ----------
 
+	// A feature file was read: remember its "Feature:" name
 	private synchronized void onSourceRead(TestSourceRead event) {
 		Matcher m = FEATURE_LINE.matcher(event.getSource());
 		featureNames.put(event.getUri(), m.find() ? m.group(1) : fileName(event.getUri()));
 	}
 
+	// A scenario started: start collecting its steps
 	private synchronized void onScenarioStarted(TestCaseStarted event) {
 		scenarios.put(event.getTestCase().getId(), new ScenarioRun(event.getTestCase(), event.getInstant()));
 	}
 
+	// A Gherkin step or hook finished: record its result
 	private synchronized void onStepFinished(TestStepFinished event) {
 		ScenarioRun run = scenarios.get(event.getTestCase().getId());
 		Result result = event.getResult();
@@ -127,21 +139,25 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		}
 	}
 
+	// scenario.log(...) was called
 	private synchronized void onWrite(WriteEvent event) {
 		scenarios.get(event.getTestCase().getId()).entries.add(StepEntry.log(event.getText()));
 	}
 
+	// scenario.attach(...) was called, e.g. for the failure screenshot
 	private synchronized void onEmbed(EmbedEvent event) {
 		scenarios.get(event.getTestCase().getId()).entries
 				.add(StepEntry.attachment(event.getName(), event.getMediaType(), event.getData()));
 	}
 
+	// A scenario finished: store its overall result and end time
 	private synchronized void onScenarioFinished(TestCaseFinished event) {
 		ScenarioRun run = scenarios.get(event.getTestCase().getId());
 		run.result = event.getResult();
 		run.finished = event.getInstant();
 	}
 
+	// The run finished: write the report file
 	private synchronized void onRunFinished(TestRunFinished event) {
 		runFinished = event.getInstant();
 		try {
@@ -251,7 +267,7 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		TestCase testCase = run.testCase;
 		String status = run.status();
 		long duration = run.duration().toMillis();
-		String location = fileName(testCase.getUri()) + ":" + testCase.getLine();
+		String location = fileName(testCase.getUri()) + ":" + testCase.getLocation().getLine();
 		Throwable error = run.result.getError();
 
 		int stepsPassed = 0;
@@ -358,10 +374,12 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 
 	// ---------- Helpers ----------
 
+	// Feature name of a feature file, or the file name if it was not read
 	private String featureName(URI uri) {
 		return featureNames.getOrDefault(uri, fileName(uri));
 	}
 
+	// Last part of a feature URI, e.g. "login.feature"
 	private static String fileName(URI uri) {
 		String path = uri.toString();
 		return path.substring(path.lastIndexOf('/') + 1);
@@ -383,10 +401,12 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		return browser == null ? "–" : browser;
 	}
 
+	// One label/value box in the scenario details
 	private String metaItem(String label, String value) {
 		return "<div><span>" + label + "</span><b>" + escape(value) + "</b></div>";
 	}
 
+	// Symbol shown for a status: check, cross or dash
 	private static String statusIcon(String status) {
 		return switch (status) {
 		case "pass" -> "✓";
@@ -406,14 +426,17 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		};
 	}
 
+	// Number of scenarios with the given status
 	private static int count(List<ScenarioRun> runs, String status) {
 		return (int) runs.stream().filter(r -> status.equals(r.status())).count();
 	}
 
+	// e.g. "1 scenario" or "3 scenarios"
 	private static String plural(int count, String word) {
 		return count + " " + word + (count == 1 ? "" : "s");
 	}
 
+	// part / total as a CSS percentage, e.g. "62.50"
 	private static String percent(int part, int total) {
 		return total == 0 ? "0" : String.format(Locale.ROOT, "%.2f", part * 100.0 / total);
 	}
@@ -432,6 +455,7 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		return String.format(Locale.ROOT, "%dm %02ds", millis / 60_000, (millis / 1000) % 60);
 	}
 
+	// First line of an error message, shown under the failed step
 	private static String firstLine(String text) {
 		if (text == null) {
 			return "";
@@ -440,6 +464,7 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		return newline < 0 ? text : text.substring(0, newline);
 	}
 
+	// Full stack trace of an exception as text
 	private static String stackTrace(Throwable error) {
 		StringWriter writer = new StringWriter();
 		error.printStackTrace(new PrintWriter(writer));
@@ -471,15 +496,18 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 			this.started = started;
 		}
 
+		// pass, fail or skip
 		String status() {
 			return statusName(result.getStatus());
 		}
 
+		// Time from scenario start to finish (zero if it never finished)
 		Duration duration() {
 			return finished == null ? Duration.ZERO : Duration.between(started, finished);
 		}
 	}
 
+	// What a StepEntry holds
 	private enum Kind { STEP, LOG, ATTACHMENT }
 
 	/** A Gherkin step, a {@code scenario.log} message or a {@code scenario.attach} file. */
@@ -491,6 +519,7 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 		String mediaType;
 		byte[] data;
 
+		// A Gherkin step (or failed hook) with its result
 		static StepEntry step(String keyword, String text, Result result) {
 			StepEntry e = new StepEntry();
 			e.kind = Kind.STEP;
@@ -500,6 +529,7 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 			return e;
 		}
 
+		// A message from scenario.log
 		static StepEntry log(String text) {
 			StepEntry e = new StepEntry();
 			e.kind = Kind.LOG;
@@ -507,6 +537,7 @@ public class HtmlReportPlugin implements ConcurrentEventListener {
 			return e;
 		}
 
+		// A file from scenario.attach
 		static StepEntry attachment(String name, String mediaType, byte[] data) {
 			StepEntry e = new StepEntry();
 			e.kind = Kind.ATTACHMENT;

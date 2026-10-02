@@ -1,9 +1,13 @@
+# Login scenarios for the OrangeHRM demo.
+# Steps: com.automation.ui.steps.LoginSteps
+# Credentials for "valid credentials" come from config.properties.
 @login
 Feature: Login
   As an OrangeHRM user
   I want to sign in with my credentials
   So that only authorised people can use the application
 
+  # Runs before every scenario in this file
   Background:
     Given the user is on the login page
 
@@ -12,6 +16,7 @@ Feature: Login
     When the user logs in with valid credentials
     Then the dashboard is displayed
 
+  # One scenario per Examples row; <case> is replaced in the scenario name
   Scenario Outline: Login is rejected with <case>
     When the user logs in with username "<username>" and password "<password>"
     Then the error message "Invalid credentials" is shown

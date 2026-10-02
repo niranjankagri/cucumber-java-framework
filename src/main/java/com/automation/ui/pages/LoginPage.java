@@ -8,14 +8,21 @@ import org.openqa.selenium.WebDriver;
  */
 public class LoginPage extends BasePage {
 
+	// Path of the page, appended to the base URL
 	public static final String PATH = "/web/index.php/auth/login";
 
+	// Login form
 	private final By usernameField = By.name("username");
 	private final By passwordField = By.name("password");
 	private final By loginButton = By.cssSelector("button[type='submit']");
+	// "Invalid credentials" banner shown above the form
 	private final By errorAlert = By.cssSelector(".oxd-alert-content-text");
+	// "Required" message shown under an empty field
 	private final By requiredMessage = By.cssSelector(".oxd-input-field-error-message");
 
+	/**
+	 * @param driver the browser this page works on.
+	 */
 	public LoginPage(WebDriver driver) {
 		super(driver);
 	}
@@ -23,7 +30,8 @@ public class LoginPage extends BasePage {
 	/**
 	 * Opens the login page.
 	 *
-	 * @param baseUrl the application root URL.
+	 * @param baseUrl     the application root URL.
+	 * @return LoginPage  this page, for chaining.
 	 */
 	public LoginPage open(String baseUrl) {
 		driver.get(baseUrl + PATH);
@@ -32,6 +40,9 @@ public class LoginPage extends BasePage {
 
 	/**
 	 * Fills in the credentials and submits the form.
+	 *
+	 * @param username  the username to type; may be empty.
+	 * @param password  the password to type; may be empty.
 	 */
 	public void login(String username, String password) {
 		type(usernameField, username);

@@ -1,6 +1,6 @@
 # cucumber-java-framework
 
-A BDD UI test automation framework built with **Java 17**, **Cucumber**, **Selenium WebDriver** and **TestNG**.
+A BDD UI test automation framework built with **Java 17**, **Cucumber**, **Selenium WebDriver** and the **JUnit Platform** (JUnit 6).
 
 It tests the public [OrangeHRM demo](https://opensource-demo.orangehrmlive.com) application: logging in and out, rejecting bad credentials, and searching system users on the Admin page. Scenarios are written in plain-English Gherkin, and every run produces a single self-contained HTML report.
 
@@ -12,7 +12,7 @@ It tests the public [OrangeHRM demo](https://opensource-demo.orangehrmlive.com) 
 | Maven | Build and dependency management |
 | Cucumber 8 | Gherkin feature files, step definitions and hooks |
 | Selenium WebDriver 4 | Browser automation (Selenium Manager downloads the driver) |
-| TestNG | Test runner and assertions |
+| JUnit Platform 6 | Runs the features (`@Suite` + Cucumber engine) and provides the assertions (Jupiter) |
 | PicoContainer | Shares one `TestContext` between hooks and steps per scenario |
 
 ## Project structure
@@ -41,7 +41,7 @@ cucumber-java-framework
     │   ├── hooks
     │   │   └── Hooks                 Starts/stops the browser, screenshot on failure
     │   ├── runners
-    │   │   └── TestRunner            Cucumber + TestNG runner and report plugins
+    │   │   └── TestRunner            JUnit Platform suite: features, glue, report plugins
     │   └── steps
     │       ├── LoginSteps
     │       └── AdminSteps
@@ -57,7 +57,7 @@ cucumber-java-framework
 The framework has three layers:
 
 1. **Feature files** (`features/*.feature`) describe behaviour in Gherkin and contain no code.
-2. **Step definitions** (`steps`) turn each Gherkin line into calls on page objects and TestNG assertions. They contain no locators.
+2. **Step definitions** (`steps`) turn each Gherkin line into calls on page objects and JUnit assertions. They contain no locators.
 3. **Page objects** (`pages`) hold the locators and the actions of one page. `BasePage` waits for every element explicitly, so there are no `Thread.sleep` calls or implicit waits.
 
 `Hooks` opens a fresh browser before each scenario and closes it afterwards. PicoContainer creates one `TestContext` per scenario and passes it to the hooks and every step class through their constructors, so nothing is shared through static fields.
@@ -116,7 +116,7 @@ Results are written to `target/`:
 - `cucumber-reports/ui-test-report.html`: the custom HTML report (see below)
 - `cucumber-reports/cucumber.html`, `cucumber.json`, `cucumber.xml`: Cucumber's standard reports
 - `screenshots/`: a PNG of the browser for every failed scenario
-- `surefire-reports/`: TestNG/Surefire results
+- `surefire-reports/`: Surefire results (one test per scenario)
 
 ## HTML report
 
@@ -139,7 +139,7 @@ It shows:
 | What | Where |
 |------|-------|
 | Base URL, browser, headless, wait timeout, credentials | `src/test/resources/config.properties`, or `-D<key>=...` |
-| Which features, glue and report plugins run | `@CucumberOptions` in `TestRunner` |
+| Which features, glue and report plugins run | `@SelectClasspathResource` and `@ConfigurationParameter` in `TestRunner` |
 | Locators | the page object classes under `pages` |
 
 ## Adding a new test

@@ -1,3 +1,10 @@
+<!--
+	Maven build for cucumber-java-framework.
+
+	Run all scenarios:        mvn clean test
+	Run without a window:     mvn clean test -Dheadless=true
+	Run a subset by tag:      mvn clean test -Dcucumber.filter.tags="@smoke"
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -8,14 +15,30 @@
 	<packaging>jar</packaging>
 
 	<name>cucumber-java-framework</name>
-	<description>BDD UI test automation framework built with Cucumber, Selenium WebDriver and TestNG</description>
+	<description>BDD UI test automation framework built with Cucumber, Selenium WebDriver and the JUnit Platform</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- Compile for Java 17 (any newer JDK can build it) -->
 		<maven.compiler.release>17</maven.compiler.release>
+		<!-- Versions shared by several artifacts -->
 		<cucumber.version>8.0.3</cucumber.version>
+		<junit.version>6.1.3</junit.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Keeps every JUnit Platform / Jupiter artifact on the same version -->
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>${junit.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<!-- Browser automation; Selenium Manager downloads the matching driver -->
@@ -24,17 +47,30 @@
 			<artifactId>selenium-java</artifactId>
 			<version>4.50.0</version>
 		</dependency>
-		<!-- Gherkin step definitions and hooks -->
+		<!-- Gherkin step definitions, hooks and the plugin API used by HtmlReportPlugin -->
 		<dependency>
 			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-java</artifactId>
 			<version>${cucumber.version}</version>
 		</dependency>
-		<!-- Runs the features as TestNG tests -->
+		<!-- Runs the feature files on the JUnit Platform (replaces the deprecated cucumber-testng) -->
 		<dependency>
 			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-testng</artifactId>
+			<artifactId>cucumber-junit-platform-engine</artifactId>
 			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- @Suite runner class that hands the features to the Cucumber engine -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Assertions used in the step definitions -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<!-- Injects the shared TestContext into hooks and step classes -->
 		<dependency>
@@ -57,23 +93,21 @@
 			<version>2.0.17</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- Test runner and assertions -->
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>7.12.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<!-- Compiles for Java 17 (see maven.compiler.release) -->
+			<!-- Compiles for Java 17 (see maven.compiler.release) and reports deprecated API use -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.16.0</version>
+				<configuration>
+					<showDeprecation>true</showDeprecation>
+					<showWarnings>true</showWarnings>
+				</configuration>
 			</plugin>
-			<!-- Runs the Cucumber TestNG runner on `mvn test` -->
+			<!-- Runs the Cucumber suite (classes ending in Runner) on `mvn test` -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -82,6 +116,12 @@
 					<includes>
 						<include>**/runners/*Runner.java</include>
 					</includes>
+					<properties>
+						<!-- Name each test "Feature - Scenario" in the Surefire reports -->
+						<configurationParameters>
+							cucumber.junit-platform.naming-strategy=long
+						</configurationParameters>
+					</properties>
 				</configuration>
 			</plugin>
 		</plugins>

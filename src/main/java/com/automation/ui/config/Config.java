@@ -16,12 +16,16 @@ import java.util.Properties;
  */
 public final class Config {
 
+	// Settings file, looked up on the classpath
 	public static final String FILE_NAME = "config.properties";
 
+	// Loaded once, when the class is first used
 	private static final Config INSTANCE = new Config();
 
+	// Values read from the file
 	private final Properties properties = new Properties();
 
+	// Reads the settings file; fails fast if it is missing or unreadable
 	private Config() {
 		try (InputStream in = Config.class.getClassLoader().getResourceAsStream(FILE_NAME)) {
 			if (in == null) {

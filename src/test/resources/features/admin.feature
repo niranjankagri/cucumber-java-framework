@@ -1,9 +1,12 @@
+# System Users scenarios (Admin -> User Management).
+# Steps: com.automation.ui.steps.AdminSteps (+ LoginSteps for the Background)
 @admin
 Feature: Admin user management
   As an OrangeHRM admin
   I want to find system users by their details
   So that I can manage their accounts
 
+  # Runs before every scenario in this file
   Background:
     Given the admin is logged in
 

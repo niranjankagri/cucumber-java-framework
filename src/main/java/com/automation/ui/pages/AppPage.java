@@ -10,16 +10,24 @@ import org.openqa.selenium.WebDriver;
  */
 public abstract class AppPage extends BasePage {
 
+	// Module name in the top bar, e.g. "Dashboard"
 	private final By pageTitle = By.cssSelector(".oxd-topbar-header-breadcrumb h6");
+	// User name in the top-right corner that opens the user menu
 	private final By userMenu = By.cssSelector(".oxd-userdropdown-tab");
+	// "Logout" entry of the user menu
 	private final By logoutLink = By.xpath("//a[@role='menuitem' and normalize-space()='Logout']");
 
+	/**
+	 * @param driver the browser this page works on.
+	 */
 	protected AppPage(WebDriver driver) {
 		super(driver);
 	}
 
 	/**
-	 * Clicks an entry of the side menu, e.g. "Admin" or "PIM".
+	 * Clicks an entry of the side menu.
+	 *
+	 * @param item the menu label, e.g. "Admin" or "PIM".
 	 */
 	public void openMenu(String item) {
 		click(By.xpath("//a[contains(@class,'oxd-main-menu-item')][normalize-space()='" + item + "']"));

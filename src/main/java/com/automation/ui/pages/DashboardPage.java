@@ -7,8 +7,12 @@ import org.openqa.selenium.WebDriver;
  */
 public class DashboardPage extends AppPage {
 
+	// Path of the page, appended to the base URL
 	public static final String PATH = "/web/index.php/dashboard/index";
 
+	/**
+	 * @param driver the browser this page works on.
+	 */
 	public DashboardPage(WebDriver driver) {
 		super(driver);
 	}

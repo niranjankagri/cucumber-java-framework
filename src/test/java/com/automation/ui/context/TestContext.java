@@ -17,20 +17,31 @@ import com.automation.ui.pages.SystemUsersPage;
  */
 public class TestContext {
 
+	// Framework settings (base URL, browser, credentials, ...)
 	private final Config config = Config.get();
 
+	// Page objects, created lazily by their getters
 	private LoginPage loginPage;
 	private DashboardPage dashboardPage;
 	private SystemUsersPage systemUsersPage;
 
+	/**
+	 * @return Config the framework settings.
+	 */
 	public Config config() {
 		return config;
 	}
 
+	/**
+	 * @return WebDriver the browser started for this scenario by {@code Hooks}.
+	 */
 	public WebDriver driver() {
 		return DriverFactory.getDriver();
 	}
 
+	/**
+	 * @return LoginPage the login page object (created on first call).
+	 */
 	public LoginPage loginPage() {
 		if (loginPage == null) {
 			loginPage = new LoginPage(driver());
@@ -38,6 +49,9 @@ public class TestContext {
 		return loginPage;
 	}
 
+	/**
+	 * @return DashboardPage the dashboard page object (created on first call).
+	 */
 	public DashboardPage dashboardPage() {
 		if (dashboardPage == null) {
 			dashboardPage = new DashboardPage(driver());
@@ -45,6 +59,9 @@ public class TestContext {
 		return dashboardPage;
 	}
 
+	/**
+	 * @return SystemUsersPage the Admin → System Users page object (created on first call).
+	 */
 	public SystemUsersPage systemUsersPage() {
 		if (systemUsersPage == null) {
 			systemUsersPage = new SystemUsersPage(driver());

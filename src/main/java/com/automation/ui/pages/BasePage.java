@@ -20,9 +20,14 @@ public abstract class BasePage {
 	// OrangeHRM shows this spinner while a form or table is loading
 	private static final By LOADER = By.cssSelector(".oxd-loading-spinner");
 
+	// The browser this page works on
 	protected final WebDriver driver;
+	// Explicit wait with the timeout from config.properties
 	protected final WebDriverWait wait;
 
+	/**
+	 * @param driver the browser this page works on.
+	 */
 	protected BasePage(WebDriver driver) {
 		this.driver = driver;
 		this.wait = new WebDriverWait(driver, Config.get().timeout());
@@ -30,6 +35,8 @@ public abstract class BasePage {
 
 	/**
 	 * Waits until the element is clickable, then clicks it.
+	 *
+	 * @param locator the element to click.
 	 */
 	protected void click(By locator) {
 		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
@@ -37,6 +44,9 @@ public abstract class BasePage {
 
 	/**
 	 * Waits until the field is visible, clears it and types the text.
+	 *
+	 * @param locator  the input field.
+	 * @param text     the text to type; may be empty.
 	 */
 	protected void type(By locator, String text) {
 		WebElement field = waitVisible(locator);
@@ -45,14 +55,16 @@ public abstract class BasePage {
 	}
 
 	/**
-	 * @return WebElement the element, once it is visible.
+	 * @param locator      the element to wait for.
+	 * @return WebElement  the element, once it is visible.
 	 */
 	protected WebElement waitVisible(By locator) {
 		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
 
 	/**
-	 * @return String the visible text of the element, trimmed.
+	 * @param locator  the element to read.
+	 * @return String  the visible text of the element, trimmed.
 	 */
 	protected String textOf(By locator) {
 		return waitVisible(locator).getText().trim();
@@ -61,7 +73,8 @@ public abstract class BasePage {
 	/**
 	 * Waits for the element to become visible.
 	 *
-	 * @return boolean true if it appeared within the timeout, false otherwise.
+	 * @param locator   the element to wait for.
+	 * @return boolean  true if it appeared within the timeout, false otherwise.
 	 */
 	protected boolean isVisible(By locator) {
 		try {
@@ -73,7 +86,8 @@ public abstract class BasePage {
 	}
 
 	/**
-	 * @return List all elements currently matching the locator (may be empty).
+	 * @param locator  the elements to find.
+	 * @return List    all elements currently matching the locator (may be empty).
 	 */
 	protected List<WebElement> findAll(By locator) {
 		return driver.findElements(locator);
@@ -89,7 +103,8 @@ public abstract class BasePage {
 	/**
 	 * Waits until the browser URL contains the given path.
 	 *
-	 * @return boolean true if the URL matched within the timeout, false otherwise.
+	 * @param path      part of the URL to wait for.
+	 * @return boolean  true if the URL matched within the timeout, false otherwise.
 	 */
 	protected boolean waitForUrl(String path) {
 		try {

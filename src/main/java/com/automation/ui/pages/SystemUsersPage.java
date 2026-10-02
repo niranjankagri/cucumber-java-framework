@@ -12,18 +12,25 @@ import org.openqa.selenium.WebElement;
  */
 public class SystemUsersPage extends AppPage {
 
+	// Path of the page, appended to the base URL
 	public static final String PATH = "/web/index.php/admin/viewSystemUsers";
 
 	// Table columns (0 is the row checkbox)
 	private static final int USERNAME_COLUMN = 1;
 	private static final int STATUS_COLUMN = 4;
 
+	// Filter form buttons
 	private final By searchButton = By.xpath("//button[@type='submit'][normalize-space()='Search']");
 	private final By resetButton = By.xpath("//button[@type='button'][normalize-space()='Reset']");
+	// Result table: one card per user, one cell per column
 	private final By rows = By.cssSelector(".oxd-table-body .oxd-table-card");
 	private final By cells = By.cssSelector(".oxd-table-cell");
+	// Counter above the table, e.g. "(1) Record Found"
 	private final By recordCount = By.xpath("//span[contains(normalize-space(),'Found')]");
 
+	/**
+	 * @param driver the browser this page works on.
+	 */
 	public SystemUsersPage(WebDriver driver) {
 		super(driver);
 	}
@@ -37,13 +44,17 @@ public class SystemUsersPage extends AppPage {
 
 	/**
 	 * Types a username into the Username filter.
+	 *
+	 * @param username the username to search for.
 	 */
 	public void filterByUsername(String username) {
 		type(filterInput("Username"), username);
 	}
 
 	/**
-	 * Picks an option of the Status filter, e.g. "Enabled".
+	 * Opens the Status filter and picks an option.
+	 *
+	 * @param status the option label, e.g. "Enabled".
 	 */
 	public void filterByStatus(String status) {
 		click(filterSelect("Status"));
@@ -103,6 +114,7 @@ public class SystemUsersPage extends AppPage {
 		return column(STATUS_COLUMN);
 	}
 
+	// Text of one column for every row of the table
 	private List<String> column(int index) {
 		return findAll(rows).stream()
 				.map(row -> row.findElements(cells))
