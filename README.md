@@ -1,5 +1,7 @@
 # cucumber-java-framework
 
+[![Tests](https://github.com/niranjankagri/cucumber-java-framework/actions/workflows/tests.yml/badge.svg)](https://github.com/niranjankagri/cucumber-java-framework/actions/workflows/tests.yml)
+
 A BDD UI test automation framework built with **Java 17**, **Cucumber**, **Selenium WebDriver** and the **JUnit Platform** (JUnit 6).
 
 It tests the public [OrangeHRM demo](https://opensource-demo.orangehrmlive.com) application: logging in and out, rejecting bad credentials, and searching system users on the Admin page. Scenarios are written in plain-English Gherkin, and every run produces a single self-contained HTML report.
@@ -14,11 +16,13 @@ It tests the public [OrangeHRM demo](https://opensource-demo.orangehrmlive.com) 
 | Selenium WebDriver 4 | Browser automation (Selenium Manager downloads the driver) |
 | JUnit Platform 6 | Runs the features (`@Suite` + Cucumber engine) and provides the assertions (Jupiter) |
 | PicoContainer | Shares one `TestContext` between hooks and steps per scenario |
+| GitHub Actions | Runs every scenario in headless Chrome on each push |
 
 ## Project structure
 
 ```
 cucumber-java-framework
+├── .github/workflows/tests.yml       GitHub Actions: all scenarios, headless Chrome
 ├── docs/images                       Screenshots used in this README
 ├── pom.xml                           Maven dependencies and plugins
 └── src
@@ -133,6 +137,10 @@ It shows:
 - a search box (scenario name, feature or `@tag`), status filters, expand/collapse all and a light/dark theme toggle
 
 ![HTML test report](docs/images/html-report.png)
+
+## Continuous integration
+
+`.github/workflows/tests.yml` runs every scenario with `mvn clean test -Dheadless=true` in Chrome on every push and pull request (JDK 17, Maven cache). The custom HTML report, Cucumber's reports and the screenshots of failed scenarios are kept as the run's **cucumber-reports** artifact, and the badge at the top shows the latest result.
 
 ## Configuration
 

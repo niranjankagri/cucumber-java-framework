@@ -23,7 +23,7 @@
 		<!-- Compile for Java 17 (any newer JDK can build it) -->
 		<maven.compiler.release>17</maven.compiler.release>
 		<!-- Versions shared by several artifacts -->
-		<cucumber.version>8.0.3</cucumber.version>
+		<cucumber.version>8.0.4</cucumber.version>
 		<junit.version>6.1.3</junit.version>
 	</properties>
 
@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
-			<version>4.50.0</version>
+			<version>4.51.0</version>
 		</dependency>
 		<!-- Gherkin step definitions, hooks and the plugin API used by HtmlReportPlugin -->
 		<dependency>
