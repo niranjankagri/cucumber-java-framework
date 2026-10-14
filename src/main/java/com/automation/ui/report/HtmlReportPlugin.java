@@ -52,7 +52,7 @@ import io.cucumber.plugin.event.WriteEvent;
  * for failures, the error and stack trace. All CSS and JavaScript are
  * inline, so the file can be opened or shared on its own.
  * <p>
- * Register it in {@code @CucumberOptions(plugin = ...)}:
+ * Register it with the {@code cucumber.plugin} setting (as {@code TestRunner} does):
  * <ul>
  * <li>{@code com.automation.ui.report.HtmlReportPlugin} writes to {@value #DEFAULT_REPORT},</li>
  * <li>{@code com.automation.ui.report.HtmlReportPlugin:path/to/report.html} writes to the given file.</li>
