@@ -3,8 +3,11 @@ package com.automation.ui.pages;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 /**
  * Admin → User Management → System Users ({@value #PATH}): a filter form
@@ -36,10 +39,16 @@ public class SystemUsersPage extends AppPage {
 	}
 
 	/**
-	 * @return boolean true once the page URL and the filter form are shown.
+	 * @return boolean true once the page URL, the filter form and the loaded
+	 *         user table are shown. Filters typed while the table is still
+	 *         loading can be cleared when the page finishes rendering.
 	 */
 	public boolean isDisplayed() {
-		return waitForUrl(PATH) && isVisible(filterInput("Username"));
+		if (!waitForUrl(PATH) || !isVisible(filterInput("Username"))) {
+			return false;
+		}
+		waitForLoader();
+		return isVisible(recordCount);
 	}
 
 	/**
@@ -49,6 +58,7 @@ public class SystemUsersPage extends AppPage {
 	 */
 	public void filterByUsername(String username) {
 		type(filterInput("Username"), username);
+		wait.until(d -> username.equals(usernameFilter()));
 	}
 
 	/**
@@ -63,11 +73,38 @@ public class SystemUsersPage extends AppPage {
 
 	/**
 	 * Clicks Search and waits for the table to reload.
+	 * <p>
+	 * The unfiltered table and its counter are already on screen, so waiting
+	 * for them alone can read the old rows when the spinner is missed. This
+	 * also waits until the old first row is replaced or the counter changes.
+	 * If neither happens, the search returned the rows already shown.
 	 */
 	public void search() {
+		List<WebElement> oldRows = findAll(rows);
+		String oldCount = currentCount();
 		click(searchButton);
 		waitForLoader();
+		if (!oldRows.isEmpty()) {
+			try {
+				wait.until(d -> {
+					String count = currentCount();
+					return ExpectedConditions.stalenessOf(oldRows.get(0)).apply(d)
+							|| (!count.isEmpty() && !count.equals(oldCount));
+				});
+			} catch (TimeoutException e) {
+				// Same rows and counter as before: the table already shows the result
+			}
+		}
 		waitVisible(recordCount);
+	}
+
+	// Counter text without waiting; "" while it is absent or being re-rendered
+	private String currentCount() {
+		try {
+			return findAll(recordCount).stream().findFirst().map(e -> e.getText().trim()).orElse("");
+		} catch (StaleElementReferenceException e) {
+			return "";
+		}
 	}
 
 	/**
