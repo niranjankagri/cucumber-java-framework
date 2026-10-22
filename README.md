@@ -140,7 +140,9 @@ It shows:
 
 ## Continuous integration
 
-`.github/workflows/tests.yml` runs every scenario with `mvn clean test -Dheadless=true` in Chrome on every push and pull request (JDK 17, Maven cache). The custom HTML report, Cucumber's reports and the screenshots of failed scenarios are kept as the run's **cucumber-reports** artifact, and the badge at the top shows the latest result.
+`.github/workflows/tests.yml` runs every scenario with `mvn clean test -Dheadless=true` in Chrome on every push and pull request (JDK 17, Maven cache). The custom HTML report, Cucumber's reports and the screenshots of failed scenarios are kept as the run's **cucumber-reports** artifact, and the badge at the top shows the latest result. [Automation Coverage & Quality Intelligence](https://github.com/niranjankagri/automation-coverage-quality-intelligence) reads `cucumber.xml` from that artifact for its cross-repository dashboard.
+
+`main` is protected by a ruleset: every change goes through a pull request, and this CI job must pass before it is merged.
 
 ## Configuration
 
@@ -157,3 +159,7 @@ It shows:
 3. Add a getter for the new page in `TestContext`.
 4. Add the step definitions to a class under `steps` that takes `TestContext` in its constructor.
 5. Run `mvn clean test`. Cucumber prints a snippet for any step that has no definition yet.
+
+## License
+
+[MIT](LICENSE)
