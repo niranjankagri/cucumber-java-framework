@@ -109,7 +109,9 @@ public class AdminSteps {
 	public void onlyMatchingUsersAreListed(String username, String status) {
 		List<String> usernames = page().usernames();
 		assertFalse(usernames.isEmpty(), "No users found, counter shows: " + page().recordCount());
-		usernames.forEach(name -> assertTrue(name.equalsIgnoreCase(username), "Unexpected username in results: " + name));
+		usernames.forEach(name -> assertTrue(name.equalsIgnoreCase(username),
+				"Unexpected username in results: " + name + " (filter \"" + page().usernameFilter() + "\", "
+						+ page().recordCount() + ": " + usernames + ")"));
 		page().statuses().forEach(value -> assertEquals(status, value, "Status in results"));
 	}
 
