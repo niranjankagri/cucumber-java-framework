@@ -142,6 +142,8 @@ It shows:
 
 `.github/workflows/tests.yml` runs every scenario with `mvn clean test -Dheadless=true` in Chrome on every push and pull request (JDK 17, Maven cache). The custom HTML report, Cucumber's reports and the screenshots of failed scenarios are kept as the run's **cucumber-reports** artifact, and the badge at the top shows the latest result. [Automation Coverage & Quality Intelligence](https://github.com/niranjankagri/automation-coverage-quality-intelligence) reads `cucumber.xml` from that artifact for its cross-repository dashboard.
 
+CI also runs every Tuesday at 23:15 UTC without a code change, so a broken dependency or a change outside the repository shows up within a week. Dependabot proposes dependency and GitHub Actions updates once a month (minor and patch updates grouped, major versions as separate pull requests).
+
 `main` is protected by a ruleset: every change goes through a pull request, and this CI job must pass before it is merged.
 
 ## Configuration
