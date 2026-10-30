@@ -56,6 +56,10 @@ cucumber-java-framework
             └── admin.feature
 ```
 
+## Test cases
+
+Every scenario carries its test case ID in its name and as a tag (`[TC-101] Successful login with valid credentials`, `@TC-101`). The seven cases (login TC-101 to TC-104, admin TC-105 to TC-107) are written out for a manual run in [docs/manual-test-cases.md](docs/manual-test-cases.md); run one with `mvn test -Dcucumber.filter.tags="@TC-106"`.
+
 ## How it works
 
 The framework has three layers:
